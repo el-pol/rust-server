@@ -1,4 +1,5 @@
 use std::io::Read;
+use std::io::Write;
 use std::net::{TcpListener, TcpStream};
 
 fn main() {
@@ -18,6 +19,11 @@ fn main() {
 
         stream.read(&mut buffer).unwrap();
         println!("Stream received");
-        println!("{}", String::from_utf8_lossy(&buffer[..]))
+        println!("{}", String::from_utf8_lossy(&buffer[..]));
+
+        let response = "HTTP/1.1 200 OK";
+
+        stream.write(response.as_bytes()).unwrap();
+        stream.flush().unwrap();
     }
 }
