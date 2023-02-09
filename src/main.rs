@@ -22,17 +22,34 @@ fn main() {
         println!("Stream received");
         println!("{}", String::from_utf8_lossy(&buffer[..]));
 
-        send_to_client(stream);
+        let get = b"GET HTTP/1.1";
 
-        fn send_to_client(mut stream: TcpStream) {
+        if buffer.starts_with(get) {
+            send_index(stream);
+        } else {
+            send_not_found(stream);
+        }
+
+        // send_to_client(stream);
+        fn build_response(content: String) -> String {
+            format!(
+                "HTTP/1.1 200 OK\r\n Content-Length: {}\r\n\r\n{}",
+                content.len(),
+                content
+            )
+        }
+
+        fn send_index(mut stream: TcpStream) {
             let contents = fs::read_to_string("index.html").unwrap();
-            let response = format!(
-                "HTTP/1.1 200 OK Content-Length: {}\r\n\r\n{}",
-                contents.len(),
-                contents
-            );
 
-            stream.write(response.as_bytes()).unwrap();
+            stream.write(build_response(contents).as_bytes()).unwrap();
+            stream.flush().unwrap();
+        }
+
+        fn send_not_found(mut stream: TcpStream) {
+            let contents = fs::read_to_string("404.html").unwrap();
+
+            stream.write(build_response(contents).as_bytes()).unwrap();
             stream.flush().unwrap();
         }
     }
