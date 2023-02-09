@@ -1,3 +1,4 @@
+use std::fs;
 use std::io::Read;
 use std::io::Write;
 use std::net::{TcpListener, TcpStream};
@@ -21,9 +22,18 @@ fn main() {
         println!("Stream received");
         println!("{}", String::from_utf8_lossy(&buffer[..]));
 
-        let response = "HTTP/1.1 200 OK";
+        send_to_client(stream);
 
-        stream.write(response.as_bytes()).unwrap();
-        stream.flush().unwrap();
+        fn send_to_client(mut stream: TcpStream) {
+            let contents = fs::read_to_string("index.html").unwrap();
+            let response = format!(
+                "HTTP/1.1 200 OK Content-Length: {}\r\n\r\n{}",
+                contents.len(),
+                contents
+            );
+
+            stream.write(response.as_bytes()).unwrap();
+            stream.flush().unwrap();
+        }
     }
 }
