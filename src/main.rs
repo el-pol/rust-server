@@ -22,7 +22,7 @@ fn main() {
         println!("Stream received");
         println!("{}", String::from_utf8_lossy(&buffer[..]));
 
-        let get = b"GET HTTP/1.1";
+        let get = b"GET ";
 
         if buffer.starts_with(get) {
             send_index(stream);
